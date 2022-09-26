@@ -4,7 +4,6 @@
 
 using namespace std;
 
-
 void imprimirAvisoError () {
 	cout << "\nEl termino ingresado no esta comprendido por las directivas o limites brindados por el juego." << endl;
 	cout << "Por favor, ingrese otra vez su respuesta:" << endl;
@@ -123,8 +122,19 @@ void jugarTurno (Juego &juego)
 		case 'r':
 			juego.estado = REINICIADO;
 			inicializarJuego (juego);
+			cout << "REINICIADO" << endl;
 			break;
 		default:
 			actualizarJuego (juego);
+			if (juego.estado == CONGELADO) {
+				cout << "\nEL juego esta congelado! Ingrese X para terminar el juego o cualquier otra letra para comenzar otra vez." << endl;
+				cin >> inputUser;
+				if (inputUser == 'X' || inputUser == 'x') {
+					juego.estado = TERMINADO;
+				}
+				else {
+					juego.estado = REINICIADO;
+				}
+			}
 	}
 }
