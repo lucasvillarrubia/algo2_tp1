@@ -1,33 +1,20 @@
 #include "Terreno.h"
 
 
-Terreno inicializarTerreno ()
+
+void inicializarTerreno (Terreno &terreno)
 {
-	Terreno nuevo;
 	for (int i = 0; i < MAX_FILAS; i++) {
 		for (int j = 0; j < MAX_COLUMNAS; j++) {
-			nuevo.habitantes[i][j] = inicializarCelula (i+1, j+1);
+			terreno.habitantes[i][j] = inicializarCelula (i+1, j+1);
 		}
 	}
-	nuevo.celulasVivas = 0;
-	nuevo.celulasMuertas = MAX_FILAS * MAX_COLUMNAS;
-	return nuevo;
+	terreno.celulasVivas = 0;
+	terreno.celulasMuertas = MAX_FILAS * MAX_COLUMNAS;
 }
 
 
-void diagnosticarCelula (Celula celula, int vecinasVivas)
-{
-	if ((celula.estado == MUERTA) && (vecinasVivas == 3)) {
-		celula.estado = VIVA;
-		return;
-	}
-	else if ((celula.estado == VIVA) && ((vecinasVivas < 2) || (vecinasVivas > 3))) {
-		celula.estado = MUERTA;
-	}
-}
-
-
-void creacionYGenocidio (Terreno terreno)
+void creacionYGenocidio (Terreno &terreno)
 {
 	int screenshotTerreno [MAX_FILAS][MAX_COLUMNAS];
 	for (int i = 0; i < MAX_FILAS; i++) {
@@ -35,49 +22,34 @@ void creacionYGenocidio (Terreno terreno)
 			screenshotTerreno [i][j] = celulaVecinasVivas(terreno, terreno.habitantes[i][j].posicion);
 		}
 	}
-
 	for (int i = 0; i < MAX_FILAS; i++) {
 		for (int j = 0; j < MAX_COLUMNAS; j++) {
-			diagnosticarCelula (terreno.habitantes[i][j], screenshotTerreno[i][j]);
+			if ((terreno.habitantes[i][j].estado == MUERTA) && (screenshotTerreno[i][j] == 3)) {
+				terreno.habitantes[i][j].estado = VIVA;
+				terreno.celulasVivas++;
+			}
+			else if (terreno.habitantes[i][j].estado == VIVA && (screenshotTerreno[i][j] < 2 || screenshotTerreno[i][j] > 3)) {
+				terreno.habitantes[i][j].estado = MUERTA;
+				terreno.celulasMuertas++;
+			}
 		}
 	}
 }
 
 
-int celulaVecinasVivas (Terreno terreno, Coordenada posicion)
+int celulaVecinasVivas (Terreno terreno, Coordenada posicion) 
 {
 	int contadorVecinasVivas = 0;
-	if (estaDentroRango (posicion.fila+1, posicion.columna)) {
-		if (terreno.habitantes[posicion.fila+1][posicion.columna].estado == VIVA)
-			contadorVecinasVivas++;
-	}
-	if (estaDentroRango (posicion.fila, posicion.columna+1)) {
-		if (terreno.habitantes[posicion.fila][posicion.columna+1].estado == VIVA)
-			contadorVecinasVivas++;
-	}
-	if (estaDentroRango (posicion.fila-1, posicion.columna)) {
-		if (terreno.habitantes[posicion.fila-1][posicion.columna].estado == VIVA)
-			contadorVecinasVivas++;
-	}
-	if (estaDentroRango (posicion.fila, posicion.columna-1)) {
-		if (terreno.habitantes[posicion.fila][posicion.columna-1].estado == VIVA)
-			contadorVecinasVivas++;
-	}
-	if (estaDentroRango (posicion.fila+1, posicion.columna+1)) {
-		if (terreno.habitantes[posicion.fila+1][posicion.columna+1].estado == VIVA)
-			contadorVecinasVivas++;
-	}
-	if (estaDentroRango (posicion.fila+1, posicion.columna-1)) {
-		if (terreno.habitantes[posicion.fila+1][posicion.columna-1].estado == VIVA)
-			contadorVecinasVivas++;
-	}
-	if (estaDentroRango (posicion.fila-1, posicion.columna+1)) {
-		if (terreno.habitantes[posicion.fila-1][posicion.columna+1].estado == VIVA)
-			contadorVecinasVivas++;
-	}
-	if (estaDentroRango (posicion.fila-1, posicion.columna-1)) {
-		if (terreno.habitantes[posicion.fila-1][posicion.columna-1].estado == VIVA)
-			contadorVecinasVivas++;
+	for (int i = (posicion.fila-1); i < (posicion.fila+1); i++) {
+		for (int j = (posicion.columna-1); j < (posicion.columna+1); j++) {
+			if (i == posicion.fila && j == posicion.columna)
+				continue;
+			if (celulaDentroRango (i, j)) {
+				if (terreno.habitantes[i-1][j-1].estado == VIVA) {
+					contadorVecinasVivas++;
+				}
+			}
+		}
 	}
 	return contadorVecinasVivas;
 }

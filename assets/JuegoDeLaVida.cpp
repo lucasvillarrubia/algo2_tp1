@@ -2,81 +2,55 @@
 #include <iostream>
 #include <cstdlib>
 
-
 using namespace std;
 
 
-bool esInputValido (int ingresado, char tipoInput)
-{
-	if (tipoInput == 'C') {
-		return (ingresado <= MAX_COLUMNAS && ingresado > 0);
-	}
-	else {
-		return (ingresado <= MAX_FILAS && ingresado > 0);
-	}
-}
-
-
 void imprimirAvisoError () {
-	cout << "El término ingresado no está comprendido por las directivas o límites brindados por el juego." << endl;
+	cout << "\nEl termino ingresado no esta comprendido por las directivas o limites brindados por el juego." << endl;
 	cout << "Por favor, ingrese otra vez su respuesta:" << endl;
 }
 
 
 void solicitarSeleccionInicio (Juego &juego)
 {
-	char inicioUser;
 	int inputUser = 0, fila = 0, columna = 0;
-	cout << "Para iniciar el juego, deberá ingresar posiciones del terreno en el cual desee células vivas" << endl;
-	cout << "Presione P para comenzar el juego con el terreno vacío o;" << endl;
-	cout << "Presione cualquier otra letra para cargar el terreno" << endl;
-	cin >> inicioUser;
-	if (inicioUser == 'P' || inicioUser == 'p')
-		return;
-
+	cout << "\nPara iniciar el juego, debera ingresar posiciones del terreno en el cual desee celulas vivas (no mas de " << MAX_FILAS * MAX_COLUMNAS << ")" << endl;
 	for (int i = 0; i < (MAX_FILAS * MAX_COLUMNAS); i++) {
-		cout << endl << "Ingrese la primera coordenada (fila) para una célula viva:" << endl;
-		cout << "(la respuesta ingresada debe ser un número entero del 1 al " << MAX_FILAS << ")" << endl;
-		cout << "PARA TERMINAR LA CARGA DEL TERRENO PRESIONE 0" << endl;
+		cout << endl << "Ingrese la primera coordenada (fila) para una celula viva:" << endl;
+		cout << "(la respuesta ingresada debe ser un numero entero del 1 al " << MAX_FILAS << ")" << endl;
+		cout << "PARA TERMINAR LA CARGA DEL TERRENO INGRESE 0" << endl;
 		cin >> inputUser;
 		if (inputUser == 0)
 			break;
-		while (!esInputValido(inputUser, 'F')) {
+		while (inputUser > MAX_FILAS || inputUser < 1) {
 			imprimirAvisoError ();
 			cin >> inputUser;
 		}
 		fila = inputUser;
-		cout << endl << "Ahora ingrese la segunda coordenada (columna) para una célula viva" << endl;
-		cout << "(la respuesta ingresada debe ser un número entero del 1 al " << MAX_COLUMNAS << ")" << endl;
-		cout << "PARA TERMINAR LA CARGA DEL TERRENO PRESIONE 0 (SE ASIGNARÁ UN NÚMERO DE COLUMNA ALEATORIO)" << endl;
+		cout << endl << "Ahora ingrese la segunda coordenada (columna) para una celula viva" << endl;
+		cout << "(la respuesta ingresada debe ser un numero entero del 1 al " << MAX_COLUMNAS << ")" << endl;
 		cin >> inputUser;
-		if (inputUser == 0) {
-			columna = rand() % 80 + 1;
-			juego.terreno.habitantes[fila-1][columna-1].estado = VIVA;
-			break;
-		}
-		while (!esInputValido(inputUser, 'C')) {
+		while (inputUser > MAX_COLUMNAS || inputUser < 1) {
 			imprimirAvisoError ();
 			cin >> inputUser;
 		}
 		columna = inputUser;
 		juego.terreno.habitantes[fila-1][columna-1].estado = VIVA;
+		juego.terreno.celulasVivas++;
+		juego.terreno.celulasMuertas--;
 	}
 }
 
 
 void inicializarJuego (Juego &juego)
 {
-	Juego nuevo;
-	nuevo.terreno = inicializarTerreno();
-	nuevo.estado = JUGANDO;
-	nuevo.turnoActual = 0;
-	nuevo.natalidadEnJuego = 0;
-	nuevo.mortalidadEnJuego = 0;
-	nuevo.nacidasEnTurno = 0;
-	nuevo.muertasEnTurno = 0;
-	solicitarSeleccionInicio (nuevo);
-	juego = nuevo;
+	inicializarTerreno(juego.terreno);
+	juego.turnoActual = 0;
+	juego.nacimientosPromedio = 0;
+	juego.muertesPromedio = 0;
+	juego.nacidasEnTurno = 0;
+	juego.muertasEnTurno = 0;
+	juego.diasSinCambio = 0;
 }
 
 
@@ -101,21 +75,56 @@ void imprimirTerreno (Juego juegoActual)
 }
 
 
-/*
-int cambiarEstadoJuego (Juego * juego)
-{
-	h
-}
-
-
 void mostrarEstadisticasJuego (Juego juego)
 {
-	h
+	cout << "Days without freezing: " << juego.turnoActual << endl;
+	cout << "\nEl turno anterior se contabilizaron:" << endl;
+	cout << "\tNacimientos: " << juego.nacidasEnTurno << endl;
+	cout << "\tMuertes: " << juego.muertasEnTurno << endl;
+	cout << "\nPromedio total de nacimientos: " << juego.nacimientosPromedio << endl;
+	cout << "Promedio total de muertes: " << juego.muertesPromedio << endl;
 }
 
 
-void jugarTurno (Juego * juego)
+void actualizarJuego (Juego &juego)
 {
-	h
+	if (juego.diasSinCambio >= 2) {
+		juego.estado = CONGELADO;
+		inicializarJuego (juego);
+		return;
+	}
+	int nacimientosTotales = 0, muertesTotales = 0;
+	int vivasAntes = juego.terreno.celulasVivas, muertasAntes = juego.terreno.celulasMuertas;
+	juego.turnoActual++;
+	creacionYGenocidio (juego.terreno);
+	juego.nacidasEnTurno = juego.terreno.celulasVivas - vivasAntes;
+	juego.muertasEnTurno = juego.terreno.celulasMuertas - muertasAntes;
+	nacimientosTotales += juego.nacidasEnTurno;
+	juego.nacimientosPromedio = (nacimientosTotales / juego.turnoActual);
+	muertesTotales += juego.muertasEnTurno;
+	juego.muertesPromedio = (muertesTotales / juego.turnoActual);
+	if (juego.nacidasEnTurno == 0 && juego.muertasEnTurno == 0)
+		juego.diasSinCambio++;
 }
-*/
+
+
+void jugarTurno (Juego &juego)
+{
+	char inputUser;
+	cout << "Ingrese una opcion para continuar:" << endl;
+	cout << "\tR para REINICIAR" << endl;
+	cout << "\tX para TERMINAR" << endl;
+	cout << "\tcualquier otra letra para CONTINUAR" << endl;
+	cin >> inputUser;
+	switch (inputUser) {
+		case 'x':
+			juego.estado = TERMINADO;
+			break;
+		case 'r':
+			juego.estado = REINICIADO;
+			inicializarJuego (juego);
+			break;
+		default:
+			actualizarJuego (juego);
+	}
+}

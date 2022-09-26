@@ -10,23 +10,16 @@ typedef struct {
 	int celulasMuertas;
 } Terreno;
 
-
 /*
  * Devuelve un terreno de células completamente inicializado con información inicial necesaria.
  */
-Terreno inicializarTerreno ();
-
-/*
- * Dada una 'célula', se analiza sus alrededores para determinar si conserva o no su estado; y lo modifica
- * en caso de que lo requiera.
- */
-void diagnosticarCelula (Celula celula);
+void inicializarTerreno (Terreno &terreno);
 
 /*
  * Procedimiento que llama a las funciones necesarias para el cambio de estado de todas las células que
  * requieren una modificación. Actualiza los datos del 'terreno' y establece si hubo cambios o no.
  */
-void creacionYGenocidio (Terreno terreno);
+void creacionYGenocidio (Terreno &terreno);
 
 /*
  * Dada una 'célula' inicializada, fiscaliza el estado de sus 8 células vecinas.
