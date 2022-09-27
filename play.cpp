@@ -1,12 +1,9 @@
 #include <iostream>
-#include <cstdlib>
 #include "assets/JuegoDeLaVida.h"
 
 using namespace std;
 
-int main ()
-{
-	char inputUser;
+int main () {
 	Juego nuevoJuego;
 	nuevoJuego.estado = JUGANDO;
 	inicializarJuego (nuevoJuego);
@@ -19,6 +16,5 @@ int main ()
 			jugarTurno (nuevoJuego);
 		}
 	}
-	cout << "\nJuego terminado. Nos vemos en otra vida." << endl;
 	return 0;
 }

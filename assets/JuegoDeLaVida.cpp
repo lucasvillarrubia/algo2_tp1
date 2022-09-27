@@ -1,6 +1,5 @@
 #include "JuegoDeLaVida.h"
 #include <iostream>
-#include <cstdlib>
 
 using namespace std;
 
@@ -62,10 +61,10 @@ void imprimirTerreno (Juego juegoActual)
 			cout << " ";
 		for (int j = 0; j < MAX_COLUMNAS; j++) {
 			if (juegoActual.terreno.habitantes[i][j].estado == VIVA) {
-				cout << "1 ";
+				cout << "V ";
 			}
 			else {
-				cout << "0 ";
+				cout << "* ";
 			}
 		}
 		cout << endl;
@@ -118,6 +117,7 @@ void jugarTurno (Juego &juego)
 	switch (inputUser) {
 		case 'x':
 			juego.estado = TERMINADO;
+			cout << "\nJuego terminado. Nos vemos en otra vida." << endl;
 			break;
 		case 'r':
 			juego.estado = REINICIADO;
@@ -131,9 +131,11 @@ void jugarTurno (Juego &juego)
 				cin >> inputUser;
 				if (inputUser == 'X' || inputUser == 'x') {
 					juego.estado = TERMINADO;
+					cout << "\nJuego terminado. Nos vemos en otra vida." << endl;
 				}
 				else {
 					juego.estado = REINICIADO;
+					cout << "REINICIADO" << endl;
 				}
 			}
 	}
